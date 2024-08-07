@@ -19,27 +19,34 @@ public struct Protocol {
 	// Note:
 	//  - Extensions to a protocol _cannot_ add conformance to another protocol
 	//  - All conformance/inheritance to other protocols must come from the `ProtocolDeclSyntax`
-	let extensions: Set<ExtensionDeclSyntax>
+	let extensions: [ExtensionDeclSyntax]
 
 	/// Any protocols this protocol inherits
-	// let inherited: [TypeDeclaration]
+	let inherited: [ProtocolDeclSyntax]
 
 	/// Any protocols, classes, structs, or extensions to classes or structs that conform to this protocol
 	/// Note: this has to be a string because type declarations don't conform to type syntax (i.e. an extension).
-	let conformers: [TypeDeclaration]
+	let conformers: [DeclSyntaxProtocol]
 
 	init(
 		decl: ProtocolDeclSyntax,
-		extensions: Set<ExtensionDeclSyntax>,
-		conformers: [TypeDeclaration]
+		typeManager: TypeManager
 	) {
 		self.decl = decl
-		self.extensions = extensions
-		// self.inherited = Set(decl.inheritanceClause?.inheritedTypes.map { $0.type } ?? [])
-		self.conformers = conformers
-
 		visibility = decl.modifiers.compactMap { VisibilityModifier(rawValue: $0.name.text) }.first ?? .internal
-		name = decl.name.text
+		name = decl.qualifiedName
+
+		// Calculate which extensions and conformers are part of this protocol relationship
+		extensions = typeManager.extensions { extensionDecl in
+			extensionDecl.qualifiedName == decl.qualifiedName
+		}
+
+		inherited = decl
+			.inheritanceClause?
+			.inheritedTypes
+			.compactMap { typeManager.protocols[$0.type.text] } ?? []
+
+		conformers = typeManager.conformers[decl.qualifiedName] ?? []
 	}
 }
 
@@ -48,10 +55,9 @@ extension Protocol: CustomStringConvertible {
 		"""
 		Protocol(name: \(name),
 			extensions: \(extensions.map { $0.extendedType.text }),
-
-			conformers: \(conformers.map { $0.name.text })
+			inherited: \(inherited.map { $0.qualifiedName }),
+			conformers: \(conformers.map { nameOfDecl($0) })
 		)
 		"""
-		//inherited: \(inherited.map { $0.type.text }),
 	}
 }

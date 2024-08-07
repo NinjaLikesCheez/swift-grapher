@@ -1,223 +1,83 @@
 import SwiftSyntax
 
-// protocol TypeDecl {
-// 	var name: TokenSyntax { get }
-// }
-
-// extension ProtocolDeclSyntax: TypeDecl {}
-// extension StructDeclSyntax: TypeDecl {}
-// extension ClassDeclSyntax: TypeDecl {}
-// extension EnumDeclSyntax: TypeDecl {}
-// extension ActorDeclSyntax: TypeDecl {}
-// extension ExtensionDeclSyntax: TypeDecl {
-// 	var name: TokenSyntax {
-// 		if let type = extendedType.as(IdentifierTypeSyntax.self) {
-// 			return type.name
-// 		} else if let type = extendedType.as(MemberTypeSyntax.self) {
-// 			return type.name
-// 		}
-
-// 		fatalError("Called name for an ExpressionDeclSyntax node that wasn't the expected type: \(self)")
-// 	}
-// }
-
-
-
-
-
-
-struct TypeDeclaration {
-	enum DeclType {
-		case `protocol`(ProtocolDeclSyntax)
-		case `struct`(StructDeclSyntax)
-		case `class`(ClassDeclSyntax)
-		case `enum`(EnumDeclSyntax)
-		case actor(ActorDeclSyntax)
-		case `extension`(ExtensionDeclSyntax)
-
-		init(_ node: some DeclSyntaxProtocol) {
-			switch node {
-			case let type as ProtocolDeclSyntax:
-				self = .protocol(type)
-			case let type as StructDeclSyntax:
-				self = .struct(type)
-			case let type as ClassDeclSyntax:
-				self = .class(type)
-			case let type as EnumDeclSyntax:
-				self = .enum(type)
-			case let type as ActorDeclSyntax:
-				self = .actor(type)
-			case let type as ExtensionDeclSyntax:
-				self = .extension(type)
-			default:
-				fatalError("Called DeclType.init(_:) with unsupported DeclSyntaxProtocol")
-			}
-		}
-
-		var wrappedDecl: DeclSyntaxProtocol {
-			switch self {
-			case .protocol(let type): return type
-			case .struct(let type): return type
-			case .class(let type): return type
-			case .enum(let type): return type
-			case .actor(let type): return type
-			case .extension(let type): return type
-			}
-		}
-
-		var name: TokenSyntax {
-			switch self {
-			case .protocol(let type): return type.name
-			case .struct(let type): return type.name
-			case .class(let type): return type.name
-			case .enum(let type): return type.name
-			case .actor(let type): return type.name
-			case .extension(let type):
-				if let type = type.extendedType.as(IdentifierTypeSyntax.self) {
-					return type.name
-				} else if let type = type.extendedType.as(MemberTypeSyntax.self) {
-					return type.name
-				}
-
-				fatalError("Called name for an ExpressionDeclSyntax node that wasn't the expected type: \(self)")
-			}
-		}
-	}
-
-	let declType: DeclType
-	var name: TokenSyntax { declType.name }
-	let fullyQualifiedName: String
-
-	init(_ decl: DeclType) {
-		declType = decl
-		fullyQualifiedName = Self.fullyQualifiedName(declType)
-	}
-
-	static func fullyQualifiedName(_ node: DeclType) -> String {
-		var parent = node.wrappedDecl.parent
-
-		guard parent != nil else { return node.name.text }
-
-		var results = [node.name.text]
-		var recursionGuard = 0
-
-		while parent != nil, recursionGuard < 15 {
-			defer {
-				parent = parent!.parent
-				recursionGuard += 1
-			}
-
-			guard
-				let decl = parent?.asProtocol(DeclSyntaxProtocol.self)
-			else { continue }
-
-			results.append(TypeDeclaration.DeclType(decl).name.text)
-		}
-
-		return results.reversed().joined(separator: ".")
+/// Return the name of a 'type' declaration (a declaration that declares a new type).
+///
+/// Note: this will throw a fatal error if provided a decl that is unsupported
+func nameOfDecl(_ decl: DeclSyntaxProtocol) -> String {
+	switch decl {
+	case let type as ProtocolDeclSyntax:
+		return type.name.text
+	case let type as StructDeclSyntax:
+		return type.name.text
+	case let type as ClassDeclSyntax:
+		return type.name.text
+	case let type as EnumDeclSyntax:
+		return type.name.text
+	case let type as ActorDeclSyntax:
+		return type.name.text
+	case let type as ExtensionDeclSyntax:
+		return type.name
+	default:
+		fatalError("Called nameOfDecl(_:) with unsupported DeclSyntaxProtocol")
 	}
 }
 
-// enum TypeDeclaration {
-// 	case `protocol`(ProtocolDeclSyntax)
-// 	case `struct`(StructDeclSyntax)
-// 	case `class`(ClassDeclSyntax)
-// 	case `enum`(EnumDeclSyntax)
-// 	case actor(ActorDeclSyntax)
-// 	case `extension`(ExtensionDeclSyntax)
+/// Get the fully qualified name of a declaration by walking the parent type declarations and appending their names
+private func fullyQualifiedName(_ node: DeclSyntaxProtocol) -> String {
+	var parent = node.parent
+	let name = nameOfDecl(node)
 
-// 	init?(_ node: some DeclSyntaxProtocol) {
-// 		switch node {
-// 		case let type as ProtocolDeclSyntax:
-// 			self = .protocol(type)
-// 		case let type as StructDeclSyntax:
-// 			self = .struct(type)
-// 		case let type as ClassDeclSyntax:
-// 			self = .class(type)
-// 		case let type as EnumDeclSyntax:
-// 			self = .enum(type)
-// 		case let type as ActorDeclSyntax:
-// 			self = .actor(type)
-// 		case let type as ExtensionDeclSyntax:
-// 			self = .extension(type)
-// 		default:
-// 			return nil
-// 		}
-// 	}
+	guard parent != nil else { return name }
 
-// 	var name: TokenSyntax {
-// 		switch self {
-// 		case .protocol(let type): return type.name
-// 		case .struct(let type): return type.name
-// 		case .class(let type): return type.name
-// 		case .enum(let type): return type.name
-// 		case .actor(let type): return type.name
-// 		case .extension(let type):
-// 			if let type = type.extendedType.as(IdentifierTypeSyntax.self) {
-// 				return type.name
-// 			} else if let type = type.extendedType.as(MemberTypeSyntax.self) {
-// 				return type.name
-// 			}
+	var results = [name]
+	var recursionGuard = 0
 
-// 			fatalError("Called name for an ExpressionDeclSyntax node that wasn't the expected type: \(self)")
-// 		}
-// 	}
+	while parent != nil, recursionGuard < 15 {
+		defer {
+			parent = parent!.parent
+			recursionGuard += 1
+		}
 
-// 	private var wrappedDecl: DeclSyntaxProtocol {
-// 		switch self {
-// 		case .protocol(let type): return type
-// 		case .struct(let type): return type
-// 		case .class(let type): return type
-// 		case .enum(let type): return type
-// 		case .actor(let type): return type
-// 		case .extension(let type): return type
-// 		}
-// 	}
+		guard
+			let decl = parent?.asProtocol(DeclSyntaxProtocol.self)
+		else { continue }
 
-// 	static func fullyQualifiedName(_ node: TypeDeclaration) -> String {
-// 		var parent = node.wrappedDecl.parent
+		results.append(nameOfDecl(decl))
+	}
 
-// 		guard parent != nil else { return node.name.text }
+	return results.reversed().joined(separator: ".")
+}
 
-// 		var results = [node.name.text]
-// 		var recursionGuard = 0
+extension ProtocolDeclSyntax {
+	var qualifiedName: String { fullyQualifiedName(self) }
+}
 
-// 		while parent != nil, recursionGuard < 15 {
-// 			defer {
-// 				parent = parent!.parent
-// 				recursionGuard += 1
-// 			}
+extension StructDeclSyntax {
+	var qualifiedName: String { fullyQualifiedName(self) }
+}
 
-// 			guard
-// 				let decl = parent?.asProtocol(DeclSyntaxProtocol.self),
-// 				let type = TypeDeclaration(decl)
-// 			else { continue }
+extension ClassDeclSyntax {
+	var qualifiedName: String { fullyQualifiedName(self) }
+}
 
-// 			results.append(type.name.text)
-// 		}
+extension EnumDeclSyntax {
+	var qualifiedName: String { fullyQualifiedName(self) }
+}
 
-// 		return results.reversed().joined(separator: ".")
-// 	}
-// }
+extension ActorDeclSyntax {
+	var qualifiedName: String { fullyQualifiedName(self) }
+}
 
-// protocol TypeDeclSyntax where Self: DeclSyntaxProtocol {
-// 	var name: TokenSyntax { get }
-// }
+extension ExtensionDeclSyntax {
+	var qualifiedName: String { fullyQualifiedName(self) }
 
-// extension ProtocolDeclSyntax: TypeDeclSyntax {}
-// extension StructDeclSyntax: TypeDeclSyntax {}
-// extension ClassDeclSyntax: TypeDeclSyntax {}
-// extension EnumDeclSyntax: TypeDeclSyntax {}
-// extension ActorDeclSyntax: TypeDeclSyntax {}
+	var name: String {
+		if let type = extendedType.as(IdentifierTypeSyntax.self) {
+			return type.name.text
+		} else if let type = extendedType.as(MemberTypeSyntax.self) {
+			return "\(type.baseType.text)\(type.period.text)\(type.name.text)"
+		}
 
-// extension ExtensionDeclSyntax: TypeDeclSyntax {
-// 	var name: TokenSyntax {
-// 		if let type = extendedType.as(IdentifierTypeSyntax.self) {
-// 			return type.name
-// 		} else if let type = extendedType.as(MemberTypeSyntax.self) {
-// 			return type.name
-// 		}
-
-// 		fatalError("Called name for an ExpressionDeclSyntax node that wasn't the expected type: \(self)")
-// 	}
-// }
+		fatalError("Called name for an ExpressionDeclSyntax node that wasn't the expected type: \(self)")
+	}
+}

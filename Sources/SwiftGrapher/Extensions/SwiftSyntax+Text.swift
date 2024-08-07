@@ -19,7 +19,7 @@ extension TypeSyntax {
 		} else if let type = self.as(ImplicitlyUnwrappedOptionalTypeSyntax.self) {
 			return "\(type.wrappedType.text)\(type.exclamationMark.text)"
 		} else if let type = self.as(MemberTypeSyntax.self) {
-			return "\(type.name.text)"
+			return "\(type.baseType.text)\(type.period.text)\(type.name.text)\(type.genericArgumentClause?.text ?? "")"
 		} else if let type = self.as(MetatypeTypeSyntax.self) {
 			return "\(type.baseType.text)\(type.period.text)\(type.metatypeSpecifier.text)"
 		} else if let type = self.as(MissingTypeSyntax.self) {
