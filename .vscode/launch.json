@@ -1,0 +1,31 @@
+{
+	"configurations": [
+		{
+			"type": "lldb",
+			"request": "launch",
+			"sourceLanguages": [
+				"swift"
+			],
+			"args": [
+				"test",
+				"output"
+			],
+			"cwd": "${workspaceFolder:swift-grapher}",
+			"name": "Debug swift-grapher",
+			"program": "${workspaceFolder:swift-grapher}/.build/debug/swift-grapher",
+			"preLaunchTask": "swift: Build Debug swift-grapher"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"sourceLanguages": [
+				"swift"
+			],
+			"args": [],
+			"cwd": "${workspaceFolder:swift-grapher}",
+			"name": "Release swift-grapher",
+			"program": "${workspaceFolder:swift-grapher}/.build/release/swift-grapher",
+			"preLaunchTask": "swift: Build Release swift-grapher"
+		}
+	]
+}
