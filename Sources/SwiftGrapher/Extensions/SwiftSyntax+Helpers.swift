@@ -3,7 +3,7 @@ import SwiftSyntax
 /// Return the name of a 'type' declaration (a declaration that declares a new type).
 ///
 /// Note: this will throw a fatal error if provided a decl that is unsupported
-func nameOfDecl(_ decl: DeclSyntaxProtocol) -> String {
+func nameOfDecl(_ decl: DeclSyntaxProtocol) -> String? {
 	switch decl {
 	case let type as ProtocolDeclSyntax:
 		return type.name.text
@@ -17,17 +17,21 @@ func nameOfDecl(_ decl: DeclSyntaxProtocol) -> String {
 		return type.name.text
 	case let type as ExtensionDeclSyntax:
 		return type.name
+	case is IfConfigDeclSyntax:
+		// Don't print anything here, we don't care
+		return nil
 	default:
-		fatalError("Called nameOfDecl(_:) with unsupported DeclSyntaxProtocol")
+		print("Called nameOfDecl(_:) with unsupported DeclSyntaxProtocol type: \(type(of: decl)):\n\(decl)")
+		return nil
 	}
 }
 
 /// Get the fully qualified name of a declaration by walking the parent type declarations and appending their names
-private func fullyQualifiedName(_ node: DeclSyntaxProtocol) -> String {
+private func fullyQualifiedName(_ node: DeclSyntaxProtocol) -> String? {
 	var parent = node.parent
 	let name = nameOfDecl(node)
 
-	guard parent != nil else { return name }
+	guard parent != nil, let name else { return nil }
 
 	var results = [name]
 	var recursionGuard = 0
@@ -39,37 +43,38 @@ private func fullyQualifiedName(_ node: DeclSyntaxProtocol) -> String {
 		}
 
 		guard
-			let decl = parent?.asProtocol(DeclSyntaxProtocol.self)
+			let decl = parent?.asProtocol(DeclSyntaxProtocol.self),
+			let declName = nameOfDecl(decl)
 		else { continue }
 
-		results.append(nameOfDecl(decl))
+		results.append(declName)
 	}
 
 	return results.reversed().joined(separator: ".")
 }
 
 extension ProtocolDeclSyntax {
-	var qualifiedName: String { fullyQualifiedName(self) }
+	var qualifiedName: String { fullyQualifiedName(self)! }
 }
 
 extension StructDeclSyntax {
-	var qualifiedName: String { fullyQualifiedName(self) }
+	var qualifiedName: String { fullyQualifiedName(self)! }
 }
 
 extension ClassDeclSyntax {
-	var qualifiedName: String { fullyQualifiedName(self) }
+	var qualifiedName: String { fullyQualifiedName(self)! }
 }
 
 extension EnumDeclSyntax {
-	var qualifiedName: String { fullyQualifiedName(self) }
+	var qualifiedName: String { fullyQualifiedName(self)! }
 }
 
 extension ActorDeclSyntax {
-	var qualifiedName: String { fullyQualifiedName(self) }
+	var qualifiedName: String { fullyQualifiedName(self)! }
 }
 
 extension ExtensionDeclSyntax {
-	var qualifiedName: String { fullyQualifiedName(self) }
+	var qualifiedName: String { fullyQualifiedName(self)! }
 
 	var name: String {
 		if let type = extendedType.as(IdentifierTypeSyntax.self) {

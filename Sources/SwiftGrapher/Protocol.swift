@@ -9,6 +9,70 @@ public enum VisibilityModifier: String {
 	case `public`
 }
 
+public enum Conformer {
+	case `protocol`(ProtocolDeclSyntax)
+	case `class`(ClassDeclSyntax)
+	case `struct`(StructDeclSyntax)
+	case `enum`(EnumDeclSyntax)
+	case `actor`(ActorDeclSyntax)
+	case `extension`(ExtensionDeclSyntax)
+
+	var decl: DeclSyntaxProtocol {
+		switch self {
+		case .protocol(let type): return type
+		case .class(let type): return type
+		case .struct(let type): return type
+		case .enum(let type): return type
+		case .actor(let type): return type
+		case .extension(let type): return type
+		}
+	}
+
+	var qualifiedName: String {
+		switch self {
+		case .protocol(let type): return type.qualifiedName
+		case .class(let type): return type.qualifiedName
+		case .struct(let type): return type.qualifiedName
+		case .enum(let type): return type.qualifiedName
+		case .actor(let type): return type.qualifiedName
+		case .extension(let type): return type.qualifiedName
+		}
+	}
+
+	var visibility: VisibilityModifier {
+		let modifiers = switch self {
+			case .protocol(let type): type.modifiers
+			case .class(let type): type.modifiers
+			case .struct(let type): type.modifiers
+			case .enum(let type): type.modifiers
+			case .actor(let type): type.modifiers
+			case .extension(let type): type.modifiers
+			}
+
+		return modifiers.compactMap { VisibilityModifier(rawValue: $0.name.text) }.first ?? .internal
+	}
+
+	init?(decl: DeclSyntaxProtocol) {
+		switch decl {
+		case let type as ProtocolDeclSyntax:
+			self = .protocol(type)
+		case let type as ClassDeclSyntax:
+			self = .class(type)
+		case let type as StructDeclSyntax:
+			self = .struct(type)
+		case let type as EnumDeclSyntax:
+			self = .enum(type)
+		case let type as ActorDeclSyntax:
+			self = .actor(type)
+		case let type as ExtensionDeclSyntax:
+			self = .extension(type)
+		default:
+			print("Conformer.init(decl:) called with non-supported decl type: \(type(of: decl)): \(decl)")
+			return nil
+		}
+	}
+}
+
 public struct Protocol {
 	let decl: ProtocolDeclSyntax
 	let visibility: VisibilityModifier
@@ -26,7 +90,7 @@ public struct Protocol {
 
 	/// Any protocols, classes, structs, or extensions to classes or structs that conform to this protocol
 	/// Note: this has to be a string because type declarations don't conform to type syntax (i.e. an extension).
-	let conformers: [DeclSyntaxProtocol]
+	let conformers: [Conformer]
 
 	init(
 		decl: ProtocolDeclSyntax,
@@ -46,7 +110,9 @@ public struct Protocol {
 			.inheritedTypes
 			.compactMap { typeManager.protocols[$0.type.text] } ?? []
 
-		conformers = typeManager.conformers[decl.qualifiedName] ?? []
+		conformers = typeManager
+			.conformers[decl.qualifiedName]?
+			.compactMap { Conformer(decl: $0) } ?? []
 	}
 }
 
@@ -56,7 +122,7 @@ extension Protocol: CustomStringConvertible {
 		Protocol(name: \(name),
 			extensions: \(extensions.map { $0.extendedType.text }),
 			inherited: \(inherited.map { $0.qualifiedName }),
-			conformers: \(conformers.map { nameOfDecl($0) })
+			conformers: \(conformers.map { $0.qualifiedName })
 		)
 		"""
 	}

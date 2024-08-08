@@ -21,8 +21,8 @@ struct SwiftGrapher: AsyncParsableCommand {
 	var output: URL
 
 	func validate() async throws {
-		if !FileManager.default.fileExists(atPath: input.absoluteString) {
-			throw ValidationError("Input path does not exist")
+		if !FileManager.default.fileExists(atPath: input.path()) {
+			throw ValidationError("Input path \(input.absoluteString) does not exist")
 		}
 
 		do {
@@ -33,8 +33,11 @@ struct SwiftGrapher: AsyncParsableCommand {
 	}
 
 	func run() async throws {
+		try await validate()
+
 		let module = try Module(path: input)
-		let protocols = try module.protocols()
+		let graph = module.graph(for: .protocols)
+		try graph.write(to: output.appending(path: "protocol.graph.dot"))
 	}
 }
 

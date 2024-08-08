@@ -1,6 +1,15 @@
 {
-  "originHash" : "cfb3fae244e7e3dd82eb2ded21c9586159047136f25f890eeaa37d564c09f2c4",
+  "originHash" : "9e3d667070b2b4b93c9b1656633e89f137021f09dacc67395861d23568df9695",
   "pins" : [
+    {
+      "identity" : "graphviz",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tuist/GraphViz",
+      "state" : {
+        "branch" : "master",
+        "revision" : "083bccf9e492fd5731dd288a46741ea80148f508"
+      }
+    },
     {
       "identity" : "swift-argument-parser",
       "kind" : "remoteSourceControl",
