@@ -3,7 +3,7 @@ import SwiftSyntax
 /// Return the name of a 'type' declaration (a declaration that declares a new type).
 ///
 /// Note: this will throw a fatal error if provided a decl that is unsupported
-func nameOfDecl(_ decl: DeclSyntaxProtocol) -> String? {
+private func nameOfDecl(_ decl: DeclSyntaxProtocol) -> String? {
 	switch decl {
 	case let type as ProtocolDeclSyntax:
 		return type.name.text

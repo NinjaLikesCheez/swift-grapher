@@ -39,10 +39,10 @@ public struct Module {
 		case protocols
 	}
 
-	public func graph(for graphType: GraphType) -> Graph {
+	public func graphs(for graphType: GraphType) -> [Graph] {
 		switch graphType {
 		case .protocols:
-			protocolGraph()
+			protocolGraphs()
 		}
 	}
 
@@ -57,36 +57,107 @@ public struct Module {
 			.map { Protocol(decl: $0.value, typeManager: typeManager) }
 	}
 
-	private func protocolGraph() -> Graph {
-		var graph = Graph(directed: true)
+	private func protocolGraphs() -> [Graph] {
+		var graphs = [Graph]()
+		let protocols = protocols()
 
-		for protocolObject in protocols() {
+		for protocolObject in protocols {
+			var graph = Graph(directed: true)
+			graph.id = protocolObject.decl.qualifiedName
+			print("creating graph for: \(graph.id!)")
+
 			guard protocolObject.visibility == .public else { continue }
-			var subgraph = Subgraph()
 
-						// Create a node for the root protocol object
+			// Create a node for the root protocol object
 			var root = Node(protocolObject.name)
 			root.shape = Node.Shape(for: protocolObject.decl)
 			root.fillColor = Color(for: protocolObject.decl)
-			subgraph.append(root)
+			graph.append(root)
+			print("adding root node: \(protocolObject.name)")
 
-			// For each conformer, add a node and an edge from the root node to the conformer
-			protocolObject.conformers.forEach {
-				guard $0.visibility == .public else { return }
-				var conformer = Node($0.qualifiedName)
-				conformer.shape = Node.Shape(for: $0.decl)
-				conformer.fillColor = Color(for: $0.decl)
+			func visit(conformer: Conformer, parent: Node) {
+				print("visiting conformer: \(conformer.qualifiedName) for parent: \(parent.id)")
+				// Visibility modifiers cannot be used with extensions that declare protocol conformances
+				guard conformer.decl is ExtensionDeclSyntax || conformer.visibility == .public else { return }
 
-				let edge = Edge(from: conformer, to: root, direction: .forward)
+				var conformerNode = Node(conformer.qualifiedName)
+				conformerNode.shape = Node.Shape(for: conformer.decl)
+				conformerNode.fillColor = Color(for: conformer.decl)
 
-				subgraph.append(conformer)
-				subgraph.append(edge)
+				let edge = Edge(from: conformerNode, to: parent, direction: .forward)
+				graph.append(conformerNode)
+				graph.append(edge)
+
+				// Loop on the next set of conformers
+				(typeManager.conformers[conformer.qualifiedName] ?? []).forEach { visit(conformer: $0, parent: conformerNode) }
 			}
 
-			graph.append(subgraph)
+			func visit(protocol inheritedProtocol: ProtocolDeclSyntax, parent: Node) {
+				guard let protocolObject = protocols.first(where: { $0.decl == inheritedProtocol }) else { return }
+
+				print("visiting inherited protocol: \(protocolObject.name)")
+				guard protocolObject.visibility == .public else { return }
+
+				var inheritedNode = Node(protocolObject.name)
+				inheritedNode.shape = Node.Shape(for: protocolObject.decl)
+				inheritedNode.fillColor = Color(for: protocolObject.decl)
+
+				// A back relationship from the inherited to inheritor
+				let edge = Edge(from: parent, to: inheritedNode, direction: .forward)
+				graph.append(inheritedNode)
+				graph.append(edge)
+
+				guard let nextInheritor = protocols.first(where: { $0.name == inheritedProtocol.qualifiedName }) else { return }
+
+				nextInheritor
+					.inherited
+					.forEach { visit(protocol: $0, parent: inheritedNode) }
+
+				// TODO: should we accept a Protocol for this function? Might make life a little easier
+			}
+
+			for conformer in protocolObject.conformers {
+				// Visit all conformers
+				visit(conformer: conformer, parent: root)
+
+				// guard conformer.visibility == .public else { continue }
+
+				// var conformerNode = Node(conformer.qualifiedName)
+				// conformerNode.shape = Node.Shape(for: conformer.decl)
+				// conformerNode.fillColor = Color(for: conformer.decl)
+
+				// let edge = Edge(from: conformerNode, to: root, direction: .forward)
+				// graph.append(conformerNode)
+				// graph.append(edge)
+
+				// // Look up any other conformers that inherit something else
+				// (typeManager.conformers[conformer.qualifiedName] ?? []).forEach { visit(conformer: $0, parent: conformerNode) }
+			}
+
+			for inheritedProtocol in protocolObject.inherited {
+				visit(protocol: inheritedProtocol, parent: root)
+			}
+
+			graphs.append(graph)
 		}
 
-		return graph
+			// For each conformer, add a node and an edge from the root node to the conformer
+			// protocolObject.conformers.forEach {
+			// 	guard $0.visibility == .public else { return }
+			// 	var conformer = Node($0.qualifiedName)
+			// 	conformer.shape = Node.Shape(for: $0.decl)
+			// 	conformer.fillColor = Color(for: $0.decl)
+
+			// 	let edge = Edge(from: conformer, to: root, direction: .forward)
+
+			// 	subgraph.append(conformer)
+			// 	subgraph.append(edge)
+			// }
+
+			// graph.append(subgraph)
+		// }
+
+		return graphs
 	}
 }
 
@@ -153,7 +224,7 @@ extension Node.Shape {
 		case is ProtocolDeclSyntax:
 			self = .circle
 		case is StructDeclSyntax, is ClassDeclSyntax, is EnumDeclSyntax:
-			self = .square
+			self = .box
 		case is ActorDeclSyntax:
 			self = .diamond
 		case is ExtensionDeclSyntax:

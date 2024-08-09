@@ -85,6 +85,7 @@ public struct Protocol {
 	//  - All conformance/inheritance to other protocols must come from the `ProtocolDeclSyntax`
 	let extensions: [ExtensionDeclSyntax]
 
+	// TODO: This will miss things like Class inherits Class that inherits protocol... fix that
 	/// Any protocols this protocol inherits
 	let inherited: [ProtocolDeclSyntax]
 
@@ -111,8 +112,7 @@ public struct Protocol {
 			.compactMap { typeManager.protocols[$0.type.text] } ?? []
 
 		conformers = typeManager
-			.conformers[decl.qualifiedName]?
-			.compactMap { Conformer(decl: $0) } ?? []
+			.conformers[decl.qualifiedName] ?? []
 	}
 }
 

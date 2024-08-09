@@ -8,7 +8,7 @@ final class TypeManager {
 	private(set) var enums = [String: EnumDeclSyntax]()
 	private(set) var actors = [String: ActorDeclSyntax]()
 
-	private(set) var conformers = [String: [DeclSyntaxProtocol]]()
+	private(set) var conformers = [String: [Conformer]]()
 
 	init() {}
 
@@ -20,49 +20,38 @@ final class TypeManager {
 extension TypeManager {
 	func add(protocol decl: ProtocolDeclSyntax) {
 		protocols[decl.qualifiedName] = decl
-
-		for inheritedType in decl.inheritanceClause?.inheritedTypes ?? [] {
-			conformers[inheritedType.type.text, default: []].append(decl)
-		}
+		add(inheritedTypes: decl.inheritanceClause?.inheritedTypes ?? [], to: decl)
 	}
 
 	func add(struct decl: StructDeclSyntax) {
 		structs[decl.qualifiedName] = decl
-
-		for inheritedType in decl.inheritanceClause?.inheritedTypes ?? [] {
-			conformers[inheritedType.type.text, default: []].append(decl)
-		}
+		add(inheritedTypes: decl.inheritanceClause?.inheritedTypes ?? [], to: decl)
 	}
 
 	func add(class decl: ClassDeclSyntax) {
 		classes[decl.qualifiedName] = decl
-
-		for inheritedType in decl.inheritanceClause?.inheritedTypes ?? [] {
-			conformers[inheritedType.type.text, default: []].append(decl)
-		}
+		add(inheritedTypes: decl.inheritanceClause?.inheritedTypes ?? [], to: decl)
 	}
 
 	func add(extension decl: ExtensionDeclSyntax) {
 		extensions[decl.qualifiedName, default: []].append(decl)
-
-		for inheritedType in decl.inheritanceClause?.inheritedTypes ?? [] {
-			conformers[inheritedType.type.text, default: []].append(decl)
-		}
+		add(inheritedTypes: decl.inheritanceClause?.inheritedTypes ?? [], to: decl)
 	}
 
 	func add(enum decl: EnumDeclSyntax) {
 		enums[decl.qualifiedName] = decl
-
-		for inheritedType in decl.inheritanceClause?.inheritedTypes ?? [] {
-			conformers[inheritedType.type.text, default: []].append(decl)
-		}
+		add(inheritedTypes: decl.inheritanceClause?.inheritedTypes ?? [], to: decl)
 	}
 
 	func add(actor decl: ActorDeclSyntax) {
 		actors[decl.qualifiedName] = decl
+		add(inheritedTypes: decl.inheritanceClause?.inheritedTypes ?? [], to: decl)
+	}
 
-		for inheritedType in decl.inheritanceClause?.inheritedTypes ?? [] {
-			conformers[inheritedType.type.text, default: []].append(decl)
+	private func add(inheritedTypes: InheritedTypeListSyntax, to decl: DeclSyntaxProtocol) {
+		inheritedTypes.forEach {
+			guard let conformer = Conformer(decl: decl) else { return }
+			conformers[$0.type.text, default: []].append(conformer)
 		}
 	}
 }
@@ -86,5 +75,9 @@ extension TypeManager {
 
 	func extensions(matching predicate: (ExtensionDeclSyntax) -> Bool) -> [ExtensionDeclSyntax] {
 		filter(collection: Array(extensions.values.flatMap { $0 }), predicate: predicate)
+	}
+
+	func conformers(matching predicate: (Conformer) -> Bool) -> [Conformer] {
+		conformers.values.flatMap { $0 }.filter(predicate)
 	}
 }

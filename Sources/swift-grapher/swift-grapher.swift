@@ -36,8 +36,10 @@ struct SwiftGrapher: AsyncParsableCommand {
 		try await validate()
 
 		let module = try Module(path: input)
-		let graph = module.graph(for: .protocols)
-		try graph.write(to: output.appending(path: "protocol.graph.dot"))
+		let graphs = module.graphs(for: .protocols)
+		try graphs.forEach {
+			try $0.write(to: output.appending(path: "\($0.id!).dot"))
+		}
 	}
 }
 

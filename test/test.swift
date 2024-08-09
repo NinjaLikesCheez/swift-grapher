@@ -1,14 +1,14 @@
-protocol T {}
-protocol P: T {}
+public protocol T {}
+public protocol P: T {}
 
-struct Foo: P {
-	struct Bar: T {
-		protocol Y {}
+public struct Foo: P {
+	private struct Bar: T {
+		public protocol Y {}
 	}
 }
 
-extension Foo.Bar.Y {
+public extension Foo.Bar.Y {
 	var test: String { "hello" }
 }
 
-extension Foo: Foo.Bar.Y {}
+public extension Foo: Foo.Bar.Y {}
