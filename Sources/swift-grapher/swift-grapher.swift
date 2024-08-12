@@ -1,16 +1,13 @@
-// The Swift Programming Language
-// https://docs.swift.org/swift-book
-
 import ArgumentParser
-import Logging
 import Foundation
+import Logging
 import SwiftGrapher
 
 @main
 struct SwiftGrapher: AsyncParsableCommand {
 	static let configuration = CommandConfiguration(
 		commandName: "swift graph",
-		abstract: "Generate relationships between Swift objects",
+		abstract: "Generate relationships between Swift protocols",
 		version: "0.0.1"
 	)
 
@@ -20,7 +17,15 @@ struct SwiftGrapher: AsyncParsableCommand {
 	@Argument(help: "Path to a directory to output GraphViz files")
 	var output: URL
 
-	func validate() async throws {
+	@Flag(help: "Enable debug logging")
+	var debug: Bool = false
+
+	mutating func validate() async throws {
+		LoggingSystem.bootstrap { [debug] label in
+			let level: Logger.Level = debug ? .debug : .info
+			return StandardStreamLogHandler(label, level: level, metadata: [:])
+		}
+
 		if !FileManager.default.fileExists(atPath: input.path()) {
 			throw ValidationError("Input path \(input.absoluteString) does not exist")
 		}
@@ -32,14 +37,17 @@ struct SwiftGrapher: AsyncParsableCommand {
 		}
 	}
 
-	func run() async throws {
+	mutating func run() async throws {
+		// For some unknown reason this isn't being called by the framework
 		try await validate()
 
-		let module = try Module(path: input)
-		let graphs = module.graphs(for: .protocols)
-		try graphs.forEach {
-			try $0.write(to: output.appending(path: "\($0.id!).dot"))
-		}
+		var module = try Module(path: input)
+
+		try module
+			.graphs(for: .protocols)
+			.forEach {
+				try $0.write(to: output.appending(path: "\($0.id!).dot"))
+			}
 	}
 }
 

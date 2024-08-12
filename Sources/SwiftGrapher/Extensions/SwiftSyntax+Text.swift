@@ -1,5 +1,8 @@
 import SwiftSyntax
 
+// We want a stable version of each variant - using `write(to:)` will result in the actual source for a node
+// which may contain spaces or differences across instances of the same syntax type
+
 extension TypeSyntax {
 	var text: String {
 		if let type = self.as(ArrayTypeSyntax.self) {

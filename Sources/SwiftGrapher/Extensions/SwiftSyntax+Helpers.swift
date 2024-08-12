@@ -21,6 +21,7 @@ private func nameOfDecl(_ decl: DeclSyntaxProtocol) -> String? {
 		// Don't print anything here, we don't care
 		return nil
 	default:
+		// The type likely doesn't declare a new type
 		print("Called nameOfDecl(_:) with unsupported DeclSyntaxProtocol type: \(type(of: decl)):\n\(decl)")
 		return nil
 	}
@@ -54,27 +55,27 @@ private func fullyQualifiedName(_ node: DeclSyntaxProtocol) -> String? {
 }
 
 extension ProtocolDeclSyntax {
-	var qualifiedName: String { fullyQualifiedName(self)! }
+	public var qualifiedName: String { fullyQualifiedName(self)! }
 }
 
 extension StructDeclSyntax {
-	var qualifiedName: String { fullyQualifiedName(self)! }
+	public var qualifiedName: String { fullyQualifiedName(self)! }
 }
 
 extension ClassDeclSyntax {
-	var qualifiedName: String { fullyQualifiedName(self)! }
+	public var qualifiedName: String { fullyQualifiedName(self)! }
 }
 
 extension EnumDeclSyntax {
-	var qualifiedName: String { fullyQualifiedName(self)! }
+	public var qualifiedName: String { fullyQualifiedName(self)! }
 }
 
 extension ActorDeclSyntax {
-	var qualifiedName: String { fullyQualifiedName(self)! }
+	public var qualifiedName: String { fullyQualifiedName(self)! }
 }
 
 extension ExtensionDeclSyntax {
-	var qualifiedName: String { fullyQualifiedName(self)! }
+	public var qualifiedName: String { fullyQualifiedName(self)! }
 
 	var name: String {
 		if let type = extendedType.as(IdentifierTypeSyntax.self) {
