@@ -11,30 +11,49 @@ public extension Graph {
 	}
 }
 
-extension Node.Shape {
-	init(for decl: DeclSyntaxProtocol) {
-		switch decl {
-		case is ProtocolDeclSyntax:
-			self = .circle
-		case is StructDeclSyntax, is ClassDeclSyntax, is EnumDeclSyntax:
-			self = .box
-		case is ActorDeclSyntax:
-			self = .diamond
-		case is ExtensionDeclSyntax:
-			self = .box3d
-		default:
-			fatalError("Called nodeShape with unsupported DeclSyntaxProtocol type: \(type(of: decl))")
-		}
-	}
+protocol GraphVizCustomizable {
+	var shape: Node.Shape { get }
+	var color: Color { get }
 }
 
-extension Color {
-	init(for decl: DeclSyntaxProtocol) {
+extension TypeDeclaration: GraphVizCustomizable {
+	var color: Color {
+		visibility != .public ? .rgb(red: 255, green: 102, blue: 102) : .transparent
+	}
+
+	var shape: Node.Shape { .box }
+}
+
+extension TypeDeclaration where Decl == ProtocolDeclSyntax {
+	var color: Color {
+		visibility == .public ? .rgb(red: 204, green: 154, blue: 255) : .rgb(red: 174, green: 129, blue: 215)
+	}
+
+	var shape: Node.Shape { .circle }
+}
+
+extension TypeDeclaration where Decl == ExtensionDeclSyntax {
+	var shape: Node.Shape { .box3d }
+}
+
+extension AnyTypeDeclaration: GraphVizCustomizable {
+	var shape: Node.Shape {
 		switch decl {
-		case let type as ProtocolDeclSyntax:
-			self = .rgb(red: 255, green: 153, blue: 255)
+		case is ProtocolDeclSyntax:
+			.circle
+		case is ExtensionDeclSyntax:
+			.box3d
 		default:
-			self = .transparent
+			.box
+		}
+	}
+
+	var color: Color {
+		switch decl {
+		case is ProtocolDeclSyntax:
+			return visibility == .public ? .rgb(red: 204, green: 154, blue: 255) : .rgb(red: 174, green: 129, blue: 215)
+		default:
+			return visibility == .public ? .transparent : .rgb(red: 255, green: 102, blue: 102)
 		}
 	}
 }

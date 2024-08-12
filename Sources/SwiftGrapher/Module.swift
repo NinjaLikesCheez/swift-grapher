@@ -15,7 +15,7 @@ public struct Module {
 
 	private let logger: Logger = Logger(label: "Module")
 
-	private lazy var protocols: [Protocol] = {
+	private lazy var protocols: [String: Protocol] = {
 		let typeDeclarationVisitor = TypeDeclarationVisitor(viewMode: .all, typeManager: typeManager)
 
 		sources.forEach {
@@ -23,7 +23,10 @@ public struct Module {
 		}
 
 		return typeManager.protocols
-			.map { Protocol(decl: $0.value, typeManager: typeManager) }
+			.map { Protocol(decl: $0.value.decl, typeManager: typeManager) }
+			.reduce(into: [String: Protocol]()) { partialResult, protocolObject in
+				partialResult[protocolObject.typeDecl.qualifiedName] = protocolObject
+			}
 	}()
 
 	public enum Error: Swift.Error {
@@ -67,19 +70,19 @@ public struct Module {
 	private mutating func protocolGraphs() -> [Graph] {
 		var graphs = [Graph]()
 
-		for protocolObject in protocols {
+		for (qualifiedName, protocolObject) in protocols {
 			var graph = Graph(directed: true)
 
-			graph.id = protocolObject.decl.qualifiedName
+			graph.id = qualifiedName
 			logger.info("creating graph for: \(graph.id!)")
 
 			// Create a node for the root protocol object
-			var protocolNode = Node(protocolObject.name)
-			protocolNode.shape = Node.Shape(for: protocolObject.decl)
-			protocolNode.fillColor = Color(for: protocolObject.decl)
+			var protocolNode = Node(qualifiedName)
+			protocolNode.shape = protocolObject.typeDecl.shape
+			protocolNode.fillColor = protocolObject.typeDecl.color
 
 			graph.append(protocolNode)
-			logger.debug("added 'root' protocol node: \(protocolObject.name)")
+			logger.debug("added 'root' protocol node: \(qualifiedName)")
 
 			protocolObject
 				.conformers
@@ -99,8 +102,8 @@ public struct Module {
 		logger.info("visiting conformer: \(conformer.qualifiedName) for parent: \(parent.id)")
 
 		var conformerNode = Node(conformer.qualifiedName)
-		conformerNode.shape = Node.Shape(for: conformer.declSyntax)
-		conformerNode.fillColor = Color(for: conformer.declSyntax)
+		conformerNode.shape = conformer.shape
+		conformerNode.fillColor = conformer.color
 
 		let edge = Edge(from: conformerNode, to: parent, direction: .forward)
 		graph.append(conformerNode)
@@ -119,15 +122,15 @@ public struct Module {
 		logger.info("visiting inherited protocol: \(inheritedProtocol.qualifiedName)")
 
 		var inheritedNode = Node(inheritedProtocol.qualifiedName)
-		inheritedNode.shape = Node.Shape(for: inheritedProtocol.decl)
-		inheritedNode.fillColor = Color(for: inheritedProtocol.decl)
+		inheritedNode.shape = inheritedProtocol.shape
+		inheritedNode.fillColor = inheritedProtocol.color
 
 		// A back relationship from the inherited to inheritor
 		let edge = Edge(from: parent, to: inheritedNode, direction: .forward)
 		graph.append(inheritedNode)
 		graph.append(edge)
 
-		guard let nextInheritor = protocols.first(where: { $0.name == inheritedProtocol.qualifiedName }) else { return }
+		guard let nextInheritor = protocols[inheritedProtocol.qualifiedName] else { return }
 
 		nextInheritor
 			.inherited

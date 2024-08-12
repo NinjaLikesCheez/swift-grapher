@@ -2,13 +2,12 @@ import SwiftSyntax
 import Logging
 
 final class TypeManager {
-	// TODO: Extract the raw syntax to a nicer type we can pass around (and where we can calculate the qualified name once not every time we need it)
-	private(set) var protocols = [String: ProtocolDeclSyntax]()
-	private(set) var structs = [String: StructDeclSyntax]()
-	private(set) var classes = [String: ClassDeclSyntax]()
-	private(set) var extensions = [String: [ExtensionDeclSyntax]]()
-	private(set) var enums = [String: EnumDeclSyntax]()
-	private(set) var actors = [String: ActorDeclSyntax]()
+	private(set) var protocols = [String: TypeDeclaration<ProtocolDeclSyntax>]()
+	private(set) var structs = [String: TypeDeclaration<StructDeclSyntax>]()
+	private(set) var classes = [String: TypeDeclaration<ClassDeclSyntax>]()
+	private(set) var extensions = [String: [TypeDeclaration<ExtensionDeclSyntax>]]()
+	private(set) var enums = [String: TypeDeclaration<EnumDeclSyntax>]()
+	private(set) var actors = [String: TypeDeclaration<ActorDeclSyntax>]()
 
 	private(set) var conformers = [String: [AnyTypeDeclaration]]()
 
@@ -26,7 +25,7 @@ extension TypeManager {
 		let name = decl.qualifiedName
 		logger.debug("saw protocol: \(name)")
 
-		protocols[name] = decl
+		protocols[name] = .init(decl)
 		add(inheritedTypes: decl.inheritanceClause?.inheritedTypes ?? [], to: decl)
 	}
 
@@ -34,7 +33,7 @@ extension TypeManager {
 		let name = decl.qualifiedName
 		logger.debug("saw struct: \(name)")
 
-		structs[decl.qualifiedName] = decl
+		structs[decl.qualifiedName] = .init(decl)
 		add(inheritedTypes: decl.inheritanceClause?.inheritedTypes ?? [], to: decl)
 	}
 
@@ -42,7 +41,7 @@ extension TypeManager {
 		let name = decl.qualifiedName
 		logger.debug("saw class: \(name)")
 
-		classes[decl.qualifiedName] = decl
+		classes[decl.qualifiedName] = .init(decl)
 		add(inheritedTypes: decl.inheritanceClause?.inheritedTypes ?? [], to: decl)
 	}
 
@@ -50,7 +49,7 @@ extension TypeManager {
 		let name = decl.qualifiedName
 		logger.debug("saw extension to: \(name)")
 
-		extensions[decl.qualifiedName, default: []].append(decl)
+		extensions[decl.qualifiedName, default: []].append(.init(decl))
 		add(inheritedTypes: decl.inheritanceClause?.inheritedTypes ?? [], to: decl)
 	}
 
@@ -58,7 +57,7 @@ extension TypeManager {
 		let name = decl.qualifiedName
 		logger.debug("saw enum: \(name)")
 
-		enums[decl.qualifiedName] = decl
+		enums[decl.qualifiedName] = .init(decl)
 		add(inheritedTypes: decl.inheritanceClause?.inheritedTypes ?? [], to: decl)
 	}
 
@@ -66,7 +65,7 @@ extension TypeManager {
 		let name = decl.qualifiedName
 		logger.debug("saw actor: \(name)")
 
-		actors[decl.qualifiedName] = decl
+		actors[decl.qualifiedName] = .init(decl)
 		add(inheritedTypes: decl.inheritanceClause?.inheritedTypes ?? [], to: decl)
 	}
 
@@ -87,25 +86,25 @@ extension TypeManager {
 }
 
 extension TypeManager {
-	func protocols(matching predicate: (ProtocolDeclSyntax) -> Bool) -> [ProtocolDeclSyntax] {
-		filter(collection: Array(protocols.values), predicate: predicate)
-	}
+	// func protocols(matching predicate: (ProtocolDeclSyntax) -> Bool) -> [ProtocolDeclSyntax] {
+	// 	filter(collection: Array(protocols.values), predicate: predicate)
+	// }
 
-	func structs(matching predicate: (StructDeclSyntax) -> Bool) -> [StructDeclSyntax] {
-		filter(collection: Array(structs.values), predicate: predicate)
-	}
+	// func structs(matching predicate: (StructDeclSyntax) -> Bool) -> [StructDeclSyntax] {
+	// 	filter(collection: Array(structs.values), predicate: predicate)
+	// }
 
-	func classes(matching predicate: (ClassDeclSyntax) -> Bool) -> [ClassDeclSyntax] {
-		filter(collection: Array(classes.values), predicate: predicate)
-	}
+	// func classes(matching predicate: (ClassDeclSyntax) -> Bool) -> [ClassDeclSyntax] {
+	// 	filter(collection: Array(classes.values), predicate: predicate)
+	// }
 
-	func enums(matching predicate: (EnumDeclSyntax) -> Bool) -> [EnumDeclSyntax] {
-		filter(collection: Array(enums.values), predicate: predicate)
-	}
+	// func enums(matching predicate: (EnumDeclSyntax) -> Bool) -> [EnumDeclSyntax] {
+	// 	filter(collection: Array(enums.values), predicate: predicate)
+	// }
 
-	func extensions(matching predicate: (ExtensionDeclSyntax) -> Bool) -> [ExtensionDeclSyntax] {
-		filter(collection: Array(extensions.values.flatMap { $0 }), predicate: predicate)
-	}
+	// func extensions(matching predicate: (ExtensionDeclSyntax) -> Bool) -> [ExtensionDeclSyntax] {
+	// 	filter(collection: Array(extensions.values.flatMap { $0 }), predicate: predicate)
+	// }
 
 	func conformers(matching predicate: (AnyTypeDeclaration) -> Bool) -> [AnyTypeDeclaration] {
 		conformers.values.flatMap { $0 }.filter(predicate)

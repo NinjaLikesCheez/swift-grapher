@@ -10,9 +10,7 @@ public enum VisibilityModifier: String {
 }
 
 public struct Protocol {
-	let decl: ProtocolDeclSyntax
-	let visibility: VisibilityModifier
-	let name: String
+	let typeDecl: TypeDeclaration<ProtocolDeclSyntax>
 
 	// Any Extensions of this protocol.
 	//
@@ -31,21 +29,14 @@ public struct Protocol {
 		decl: ProtocolDeclSyntax,
 		typeManager: TypeManager
 	) {
-		self.decl = decl
-		visibility = decl.modifiers.compactMap { VisibilityModifier(rawValue: $0.name.text) }.first ?? .internal
-		name = decl.qualifiedName
+		self.typeDecl = .init(decl)
 
-		extensions = typeManager
-			.extensions { extensionDecl in
-				extensionDecl.qualifiedName == decl.qualifiedName
-			}
-			.map { TypeDeclaration($0) }
+		extensions = typeManager.extensions[decl.qualifiedName] ?? []
 
 		inherited = decl
 			.inheritanceClause?
 			.inheritedTypes
-			.compactMap { typeManager.protocols[$0.type.text] }
-			.map { TypeDeclaration($0) } ?? []
+			.compactMap { typeManager.protocols[$0.type.text] } ?? []
 
 		conformers = typeManager
 			.conformers[decl.qualifiedName] ?? []
@@ -55,7 +46,7 @@ public struct Protocol {
 extension Protocol: CustomStringConvertible {
 	public var description: String {
 		"""
-		Protocol(name: \(name),
+		Protocol(name: \(typeDecl.qualifiedName),
 			extensions: \(extensions.map { $0.decl.extendedType.text }),
 			inherited: \(inherited.map { $0.qualifiedName }),
 			conformers: \(conformers.map { $0.qualifiedName })
