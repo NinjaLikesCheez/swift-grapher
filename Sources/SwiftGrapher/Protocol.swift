@@ -1,12 +1,28 @@
 import SwiftSyntax
 
-public enum VisibilityModifier: String {
+public enum VisibilityModifier: String, Comparable, CaseIterable {
 	case open
+	case `public`
 	case `package`
 	case `internal`
 	case `fileprivate`
 	case `private`
-	case `public`
+
+	private var comparableValue: Int {
+		// Horrible
+		switch self {
+		case .open: 1
+		case .public: 2
+		case .package: 3
+		case .internal: 4
+		case .fileprivate: 5
+		case .private: 6
+		}
+	}
+
+	public static func < (lhs: Self, rhs: Self) -> Bool {
+		return lhs.comparableValue < rhs.comparableValue
+	}
 }
 
 public struct Protocol {

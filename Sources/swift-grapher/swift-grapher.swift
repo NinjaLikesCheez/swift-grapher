@@ -20,6 +20,9 @@ struct SwiftGrapher: AsyncParsableCommand {
 	@Flag(help: "Enable debug logging")
 	var debug: Bool = false
 
+	@Option(help: "Filter out protocols with more restrictive visibility than this")
+	var visibility: VisibilityModifier = .open
+
 	mutating func validate() async throws {
 		LoggingSystem.bootstrap { [debug] label in
 			let level: Logger.Level = debug ? .debug : .info
@@ -41,7 +44,7 @@ struct SwiftGrapher: AsyncParsableCommand {
 		// For some unknown reason this isn't being called by the framework
 		try await validate()
 
-		var module = try Module(path: input)
+		var module = try Module(path: input, visibility: visibility)
 
 		try module
 			.graphs(for: .protocols)
@@ -56,3 +59,5 @@ extension URL: @retroactive ExpressibleByArgument {
 		self = URL(filePath: argument).absoluteURL
 	}
 }
+
+extension VisibilityModifier: @retroactive ExpressibleByArgument {}

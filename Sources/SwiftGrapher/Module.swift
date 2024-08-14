@@ -11,6 +11,8 @@ public struct Module {
 	/// The swift files inside the module
 	public let sources: [SourceFileSyntax]
 
+	public let visibility: VisibilityModifier
+
 	private let typeManager: TypeManager = .init()
 
 	private let logger: Logger = Logger(label: "Module")
@@ -38,8 +40,9 @@ public struct Module {
 		case protocols
 	}
 
-	public init(path: URL) throws(Error) {
+	public init(path: URL, visibility: VisibilityModifier) throws(Error) {
 		name = path.lastPathComponent
+		self.visibility = visibility
 
 		guard let enumerator = FileManager.default.enumerator(at: path, includingPropertiesForKeys: nil) else {
 			logger.error("Failed to enumerate path (\(path.path()))")
@@ -71,6 +74,8 @@ public struct Module {
 		var graphs = [Graph]()
 
 		for (qualifiedName, protocolObject) in protocols {
+			guard protocolObject.typeDecl.visibility >= visibility else { continue }
+
 			var graph = Graph(directed: true)
 
 			graph.id = qualifiedName
