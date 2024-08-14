@@ -6,7 +6,7 @@ import SwiftGrapher
 @main
 struct SwiftGrapher: AsyncParsableCommand {
 	static let configuration = CommandConfiguration(
-		commandName: "swift graph",
+		commandName: "swift-grapher",
 		abstract: "Generate relationships between Swift protocols",
 		version: "0.0.1"
 	)
