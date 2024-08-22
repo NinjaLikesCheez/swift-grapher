@@ -8,15 +8,16 @@ public enum VisibilityModifier: String, Comparable, CaseIterable {
 	case `fileprivate`
 	case `private`
 
+	/// This is ordered in reverse so comparisons read as 'lhs is more open than rhs'
 	private var comparableValue: Int {
 		// Horrible
 		switch self {
-		case .open: 1
-		case .public: 2
-		case .package: 3
-		case .internal: 4
-		case .fileprivate: 5
-		case .private: 6
+		case .open: 6
+		case .public: 5
+		case .package: 4
+		case .internal: 3
+		case .fileprivate: 2
+		case .private: 1
 		}
 	}
 

@@ -7,8 +7,12 @@
 				"swift"
 			],
 			"args": [
-				"test",
-				"output"
+				// "test",
+				"/Users/ninji/dev/apple/swift-project/swift/stdlib/public/core",
+				"output",
+				"--visibility",
+				"public",
+				// "--debug"
 			],
 			"cwd": "${workspaceFolder:swift-grapher}",
 			"name": "Debug swift-grapher",

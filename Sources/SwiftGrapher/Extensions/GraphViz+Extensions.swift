@@ -52,8 +52,15 @@ extension AnyTypeDeclaration: GraphVizCustomizable {
 		switch decl {
 		case is ProtocolDeclSyntax:
 			return visibility == .public ? .rgb(red: 204, green: 154, blue: 255) : .rgb(red: 174, green: 129, blue: 215)
+		case let type as ExtensionDeclSyntax:
+			if type.modifiers.isEmpty {
+				// Color it public since access control is likely on the individual items
+				return .rgb(red: 51, green: 255, blue: 153)
+			}
+
+			return visibility == .public ? .rgb(red: 51, green: 255, blue: 153) : .rgb(red: 255, green: 102, blue: 102)
 		default:
-			return visibility == .public ? .transparent : .rgb(red: 255, green: 102, blue: 102)
+			return visibility == .public ? .rgb(red: 51, green: 255, blue: 153) : .rgb(red: 255, green: 102, blue: 102)
 		}
 	}
 }

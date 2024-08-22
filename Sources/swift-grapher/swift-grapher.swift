@@ -21,7 +21,7 @@ struct SwiftGrapher: AsyncParsableCommand {
 	var debug: Bool = false
 
 	@Option(help: "Filter out protocols with more restrictive visibility than this")
-	var visibility: VisibilityModifier = .open
+	var visibility: VisibilityModifier = .private
 
 	mutating func validate() async throws {
 		LoggingSystem.bootstrap { [debug] label in

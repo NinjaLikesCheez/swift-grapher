@@ -1,0 +1,129 @@
+<?xml version="1.0" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="780pt" height="655pt" viewBox="0.00 0.00 779.51 654.78">
+<g id="graph0" class="graph" transform="translate(4,650.780029296875) scale(1)" data-name="LazyCollectionProtocol">
+
+<!-- LazyCollectionProtocol -->
+<g id="node1" class="node" pointer-events="visible" data-name="LazyCollectionProtocol">
+
+<ellipse fill="#cc9aff" stroke="black" cx="422.36" cy="-471.49" rx="103.08" ry="103.08" style=""/>
+<text text-anchor="middle" x="422.36" y="-467.29" font-family="Times,serif" font-size="14.00" style="">LazyCollectionProtocol</text>
+</g>
+<!-- Collection -->
+<g id="node7" class="node" pointer-events="visible" data-name="Collection">
+
+<ellipse fill="#cc9aff" stroke="black" cx="338.36" cy="-232.14" rx="51.04" ry="51.04" style=""/>
+<text text-anchor="middle" x="338.36" y="-227.94" font-family="Times,serif" font-size="14.00" style="">Collection</text>
+</g>
+<!-- LazyCollectionProtocol&#45;&gt;Collection -->
+<g id="edge6" class="edge" data-name="LazyCollectionProtocol-&gt;Collection">
+
+<path fill="none" stroke="black" d="M388.2,-373.95C378.3,-346 367.81,-316.35 359.02,-291.51" style=""/>
+<polygon fill="black" stroke="black" points="362.38,-290.5 355.74,-282.24 355.78,-292.83 362.38,-290.5" style=""/>
+</g>
+<!-- LazySequenceProtocol -->
+<g id="node9" class="node" pointer-events="visible" data-name="LazySequenceProtocol">
+
+<ellipse fill="#cc9aff" stroke="black" cx="507.36" cy="-232.14" rx="100.12" ry="100.12" style=""/>
+<text text-anchor="middle" x="507.36" y="-227.94" font-family="Times,serif" font-size="14.00" style="">LazySequenceProtocol</text>
+</g>
+<!-- LazyCollectionProtocol&#45;&gt;LazySequenceProtocol -->
+<g id="edge8" class="edge" data-name="LazyCollectionProtocol-&gt;LazySequenceProtocol">
+
+<path fill="none" stroke="black" d="M456.94,-373.95C461.24,-361.94 465.65,-349.61 469.99,-337.49" style=""/>
+<polygon fill="black" stroke="black" points="473.2,-338.92 473.27,-328.33 466.61,-336.56 473.2,-338.92" style=""/>
+</g>
+<!-- LazyPrefixWhileCollection -->
+<g id="node2" class="node" pointer-events="visible" data-name="LazyPrefixWhileCollection">
+
+<polygon fill="#33ff99" stroke="black" points="170.59,-646.78 4.14,-646.78 0.14,-642.78 0.14,-610.78 166.59,-610.78 170.59,-614.78 170.59,-646.78" style=""/>
+<polyline fill="none" stroke="black" points="166.59,-642.78 0.14,-642.78" style=""/>
+<polyline fill="none" stroke="black" points="166.59,-642.78 166.59,-610.78" style=""/>
+<polyline fill="none" stroke="black" points="166.59,-642.78 170.59,-646.78" style=""/>
+<text text-anchor="middle" x="85.36" y="-624.58" font-family="Times,serif" font-size="14.00" style="">LazyPrefixWhileCollection</text>
+</g>
+<!-- LazyPrefixWhileCollection&#45;&gt;LazyCollectionProtocol -->
+<g id="edge1" class="edge" data-name="LazyPrefixWhileCollection-&gt;LazyCollectionProtocol">
+
+<path fill="none" stroke="black" d="M123.04,-610.42C170.09,-588.74 252.48,-550.77 318.92,-520.16" style=""/>
+<polygon fill="black" stroke="black" points="320.03,-523.5 327.65,-516.14 317.1,-517.14 320.03,-523.5" style=""/>
+</g>
+<!-- LazyFilterCollection -->
+<g id="node3" class="node" pointer-events="visible" data-name="LazyFilterCollection">
+
+<polygon fill="#33ff99" stroke="black" points="321.5,-646.78 193.23,-646.78 189.23,-642.78 189.23,-610.78 317.5,-610.78 321.5,-614.78 321.5,-646.78" style=""/>
+<polyline fill="none" stroke="black" points="317.5,-642.78 189.23,-642.78" style=""/>
+<polyline fill="none" stroke="black" points="317.5,-642.78 317.5,-610.78" style=""/>
+<polyline fill="none" stroke="black" points="317.5,-642.78 321.5,-646.78" style=""/>
+<text text-anchor="middle" x="255.36" y="-624.58" font-family="Times,serif" font-size="14.00" style="">LazyFilterCollection</text>
+</g>
+<!-- LazyFilterCollection&#45;&gt;LazyCollectionProtocol -->
+<g id="edge2" class="edge" data-name="LazyFilterCollection-&gt;LazyCollectionProtocol">
+
+<path fill="none" stroke="black" d="M273.87,-610.57C289.97,-595.6 314.5,-572.78 339.02,-549.99" style=""/>
+<polygon fill="black" stroke="black" points="341.27,-552.67 346.21,-543.3 336.51,-547.55 341.27,-552.67" style=""/>
+</g>
+<!-- LazyDropWhileCollection -->
+<g id="node4" class="node" pointer-events="visible" data-name="LazyDropWhileCollection">
+
+<polygon fill="#33ff99" stroke="black" points="505.15,-646.78 343.58,-646.78 339.58,-642.78 339.58,-610.78 501.15,-610.78 505.15,-614.78 505.15,-646.78" style=""/>
+<polyline fill="none" stroke="black" points="501.15,-642.78 339.58,-642.78" style=""/>
+<polyline fill="none" stroke="black" points="501.15,-642.78 501.15,-610.78" style=""/>
+<polyline fill="none" stroke="black" points="501.15,-642.78 505.15,-646.78" style=""/>
+<text text-anchor="middle" x="422.36" y="-624.58" font-family="Times,serif" font-size="14.00" style="">LazyDropWhileCollection</text>
+</g>
+<!-- LazyDropWhileCollection&#45;&gt;LazyCollectionProtocol -->
+<g id="edge3" class="edge" data-name="LazyDropWhileCollection-&gt;LazyCollectionProtocol">
+
+<path fill="none" stroke="black" d="M422.36,-610.57C422.36,-603.89 422.36,-595.64 422.36,-586.54" style=""/>
+<polygon fill="black" stroke="black" points="425.86,-586.56 422.36,-576.56 418.86,-586.56 425.86,-586.56" style=""/>
+</g>
+<!-- LazyMapCollection -->
+<g id="node5" class="node" pointer-events="visible" data-name="LazyMapCollection">
+
+<polygon fill="#33ff99" stroke="black" points="651.33,-646.78 527.4,-646.78 523.4,-642.78 523.4,-610.78 647.33,-610.78 651.33,-614.78 651.33,-646.78" style=""/>
+<polyline fill="none" stroke="black" points="647.33,-642.78 523.4,-642.78" style=""/>
+<polyline fill="none" stroke="black" points="647.33,-642.78 647.33,-610.78" style=""/>
+<polyline fill="none" stroke="black" points="647.33,-642.78 651.33,-646.78" style=""/>
+<text text-anchor="middle" x="587.36" y="-624.58" font-family="Times,serif" font-size="14.00" style="">LazyMapCollection</text>
+</g>
+<!-- LazyMapCollection&#45;&gt;LazyCollectionProtocol -->
+<g id="edge4" class="edge" data-name="LazyMapCollection-&gt;LazyCollectionProtocol">
+
+<path fill="none" stroke="black" d="M569.07,-610.57C553.32,-595.74 529.39,-573.22 505.39,-550.64" style=""/>
+<polygon fill="black" stroke="black" points="508.05,-548.33 498.37,-544.02 503.25,-553.43 508.05,-548.33" style=""/>
+</g>
+<!-- LazyCollection -->
+<g id="node6" class="node" pointer-events="visible" data-name="LazyCollection">
+
+<polygon fill="#33ff99" stroke="black" points="771.67,-646.78 673.06,-646.78 669.06,-642.78 669.06,-610.78 767.67,-610.78 771.67,-614.78 771.67,-646.78" style=""/>
+<polyline fill="none" stroke="black" points="767.67,-642.78 669.06,-642.78" style=""/>
+<polyline fill="none" stroke="black" points="767.67,-642.78 767.67,-610.78" style=""/>
+<polyline fill="none" stroke="black" points="767.67,-642.78 771.67,-646.78" style=""/>
+<text text-anchor="middle" x="720.36" y="-624.58" font-family="Times,serif" font-size="14.00" style="">LazyCollection</text>
+</g>
+<!-- LazyCollection&#45;&gt;LazyCollectionProtocol -->
+<g id="edge5" class="edge" data-name="LazyCollection-&gt;LazyCollectionProtocol">
+
+<path fill="none" stroke="black" d="M687.05,-610.42C647.79,-589.96 580.71,-555.01 523.9,-525.4" style=""/>
+<polygon fill="black" stroke="black" points="525.62,-522.35 515.13,-520.83 522.39,-528.56 525.62,-522.35" style=""/>
+</g>
+<!-- Sequence -->
+<g id="node8" class="node" pointer-events="visible" data-name="Sequence">
+
+<ellipse fill="#cc9aff" stroke="black" cx="422.36" cy="-48.04" rx="48.08" ry="48.08" style=""/>
+<text text-anchor="middle" x="422.36" y="-43.84" font-family="Times,serif" font-size="14.00" style="">Sequence</text>
+</g>
+<!-- Collection&#45;&gt;Sequence -->
+<g id="edge7" class="edge" data-name="Collection-&gt;Sequence">
+
+<path fill="none" stroke="black" d="M359.56,-185.19C371.19,-159.98 385.66,-128.6 397.78,-102.32" style=""/>
+<polygon fill="black" stroke="black" points="400.83,-104.08 401.84,-93.53 394.47,-101.15 400.83,-104.08" style=""/>
+</g>
+<!-- LazySequenceProtocol&#45;&gt;Sequence -->
+<g id="edge9" class="edge" data-name="LazySequenceProtocol-&gt;Sequence">
+
+<path fill="none" stroke="black" d="M465.24,-140.89C459.1,-127.74 452.96,-114.58 447.31,-102.49" style=""/>
+<polygon fill="black" stroke="black" points="450.54,-101.12 443.13,-93.54 444.19,-104.08 450.54,-101.12" style=""/>
+</g>
+</g>
+</svg>
